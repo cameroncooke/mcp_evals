@@ -1,0 +1,42 @@
+diff --git a/HackerNewsTests/Hacker_NewsTests.swift b/HackerNewsTests/Hacker_NewsTests.swift
+index 6884000..dbb03f9 100644
+--- a/HackerNewsTests/Hacker_NewsTests.swift
++++ b/HackerNewsTests/Hacker_NewsTests.swift
+@@ -6,6 +6,7 @@
+ //
+ 
+ import XCTest
++@testable import HackerNews
+ 
+ final class Hacker_NewsTests: XCTestCase {
+ 
+@@ -33,3 +34,29 @@ final class Hacker_NewsTests: XCTestCase {
+     }
+ 
+ }
++
++final class StoryContentRelativeDateTests: XCTestCase {
++
++  override func tearDownWithError() throws {
++    unsetenv("EMERGE_IS_RUNNING_FOR_SNAPSHOTS")
++  }
++
++  func testRelativeDateUsesSnapshotOverride() throws {
++    setenv("EMERGE_IS_RUNNING_FOR_SNAPSHOTS", "1", 1)
++    defer { unsetenv("EMERGE_IS_RUNNING_FOR_SNAPSHOTS") }
++
++    let content = StoryContent(
++      id: 1,
++      title: "Test story",
++      author: "dang",
++      body: nil,
++      score: 42,
++      commentCount: 3,
++      timestamp: 0,
++      url: nil,
++      bookmarked: false
++    )
++
++    XCTAssertEqual(content.relativeDate(), "10 minutes ago")
++  }
++}

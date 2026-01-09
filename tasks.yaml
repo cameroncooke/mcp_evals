@@ -1,0 +1,191 @@
+## Outcome-graded, deterministic tasks.
+## Each task runs in a clean git worktree at project.base_ref.
+
+tasks:
+  # Keep this as a fast plumbing/smoke check (optional but useful to debug sim/env issues).
+  - id: "smoke_build_install_launch"
+    description: "Smoke test: build, install, and launch on the configured simulator."
+    kind: "regression"
+    prompt: |
+      You are working in a local iOS repo. Your goal is to build, install, and launch the app on the iOS simulator.
+
+      Target simulator: iPhone 17 Pro
+
+      Rules:
+      - Do not ask the user for missing information. Discover what you need from the repo.
+      - Use command-line workflows (or available tools) to build/install/launch.
+      - You MUST install and launch on the specified simulator (iPhone 17 Pro).
+      - When you believe it is successful, exit.
+
+      Success criteria (graded by the harness):
+      - The app installs with the expected bundle id on iPhone 17 Pro.
+      - The app can be launched on iPhone 17 Pro.
+    setup_commands: []
+    graders:
+      - type: "ios_install_check"
+      - type: "ios_launch_check"
+
+  # Feature task: harness injects TASK.md + failing tests via patch.
+  - id: "feature_from_task_md_fix_tests"
+    description: "Implement the feature described in TASK.md until tests pass (TASK.md + failing tests injected by harness)."
+    kind: "capability"
+    prompt: |
+      Implement the feature described in TASK.md in this repo. Run the specific tests mentioned in TASK.md until they pass, then exit immediately. Do not run additional tests or the full test suite.
+
+      Rules:
+      - Do not ask the user for missing information. Discover what you need from the repo.
+      - Prefer minimal changes that satisfy the tests and keep style consistent with the codebase.
+      - You may need multiple build/test iterations; run them as needed.
+      - When the specific tests pass, your task is complete. Exit without running regression tests.
+
+      Success criteria (graded by the harness):
+      - The specific tests mentioned in TASK.md pass on the configured simulator.
+      - The app installs and launches on the configured simulator.
+    setup_commands:
+      - [
+          "bash",
+          "-lc",
+          "cp \"$EVAL_SUITE_ROOT/task_assets/hn_relative_date/TASK.md\" ./TASK.md",
+        ]
+      - [
+          "bash",
+          "-lc",
+          "git -C \"$EVAL_REPO_ROOT\" apply --directory \"$EVAL_REPO_SUBDIR\" \"$EVAL_SUITE_ROOT/task_assets/hn_relative_date/add_failing_tests.patch\"",
+        ]
+      - [
+          "bash",
+          "-lc",
+          "test -f TASK.md || (echo 'Missing TASK.md (harness must provide task description)' && exit 1)",
+        ]
+    graders:
+      - type: "git_diff_forbidden"
+        forbidden_globs:
+          - "HackerNewsTests/**"
+      - type: "ios_test_pass"
+        only_testing:
+          - "HackerNewsTests/StoryContentRelativeDateTests"
+      - type: "ios_install_check"
+      - type: "ios_launch_check"
+    reference_patch: "task_assets/hn_relative_date/reference_solution.patch"
+
+  - id: "hn_offline_api_refactor"
+    description: "Refactor HNApi for offline testing with fixtures; make deterministic unit tests pass."
+    kind: "capability"
+    prompt: |
+      Implement the feature described in TASK.md in this repo. Run the specific tests mentioned in TASK.md until they pass, then exit immediately. Do not run additional tests or the full test suite.
+
+      Rules:
+      - Do not ask the user for missing information. Discover what you need from the repo.
+      - Prefer minimal changes that satisfy the tests and keep style consistent with the codebase.
+      - You may need multiple build/test iterations; run them as needed.
+      - When the specific tests pass, your task is complete. Exit without running regression tests.
+
+      Success criteria (graded by the harness):
+      - The specific tests mentioned in TASK.md pass on the configured simulator.
+    setup_commands:
+      - [
+          "bash",
+          "-lc",
+          "cp \"$EVAL_SUITE_ROOT/task_assets/hn_offline_api_refactor/TASK.md\" ./TASK.md",
+        ]
+      - [
+          "bash",
+          "-lc",
+          "git -C \"$EVAL_REPO_ROOT\" apply --directory \"$EVAL_REPO_SUBDIR\" \"$EVAL_SUITE_ROOT/task_assets/hn_offline_api_refactor/add_failing_tests.patch\"",
+        ]
+      - [
+          "bash",
+          "-lc",
+          "test -f TASK.md || (echo 'Missing TASK.md (harness must provide task description)' && exit 1)",
+        ]
+    graders:
+      - type: "git_diff_forbidden"
+        forbidden_globs:
+          - "HackerNewsTests/**"
+      - type: "ios_test_pass"
+        only_testing:
+          - "HackerNewsTests/HNApiOfflineTests"
+    reference_patch: "task_assets/hn_offline_api_refactor/reference_solution.patch"
+
+  - id: "hn_api_cache_ttl"
+    description: "Add deterministic in-memory response caching to HNApi with TTL and clock injection."
+    kind: "capability"
+    prompt: |
+      Implement the feature described in TASK.md in this repo. Run the specific tests mentioned in TASK.md until they pass, then exit immediately. Do not run additional tests or the full test suite.
+
+      Rules:
+      - Do not ask the user for missing information. Discover what you need from the repo.
+      - Prefer minimal changes that satisfy the tests and keep style consistent with the codebase.
+      - You may need multiple build/test iterations; run them as needed.
+      - When the specific tests pass, your task is complete. Exit without running regression tests.
+
+      Success criteria (graded by the harness):
+      - The specific tests mentioned in TASK.md pass on the configured simulator.
+    setup_commands:
+      - [
+          "bash",
+          "-lc",
+          "cp \"$EVAL_SUITE_ROOT/task_assets/hn_api_cache_ttl/TASK.md\" ./TASK.md",
+        ]
+      - [
+          "bash",
+          "-lc",
+          "git -C \"$EVAL_REPO_ROOT\" apply --directory \"$EVAL_REPO_SUBDIR\" \"$EVAL_SUITE_ROOT/task_assets/hn_api_cache_ttl/add_failing_tests.patch\"",
+        ]
+      - [
+          "bash",
+          "-lc",
+          "test -f TASK.md || (echo 'Missing TASK.md (harness must provide task description)' && exit 1)",
+        ]
+    graders:
+      - type: "git_diff_forbidden"
+        forbidden_globs:
+          - "HackerNewsTests/**"
+      - type: "ios_test_pass"
+        only_testing:
+          - "HackerNewsTests/HNApiCacheTests"
+    reference_patch: "task_assets/hn_api_cache_ttl/reference_solution.patch"
+
+  - id: "hn_settings_deeplink"
+    description: "Add settings deep link URL scheme and capture screenshot via simulator."
+    kind: "capability"
+    prompt: |
+      Implement the feature described in TASK.md in this repo. Your task requires using the iOS simulator to verify your implementation.
+
+      Target simulator: iPhone 17 Pro
+
+      Rules:
+      - Do not ask the user for missing information. Discover what you need from the repo.
+      - Prefer minimal changes that satisfy the requirements and keep style consistent with the codebase.
+      - You may need multiple build/install iterations; run them as needed.
+      - You MUST save the screenshot as `settings_screenshot.png` in the current working directory.
+      - When the screenshot is captured showing the Settings screen, your task is complete.
+
+      Success criteria (graded by the harness):
+      - The deep link `hackernews://settings` navigates to the Settings screen.
+      - A screenshot file `settings_screenshot.png` exists in the repo root.
+      - The screenshot shows the Settings screen (validated against reference).
+      - The app's default launch behavior is unchanged (still launches to Feed).
+    setup_commands:
+      - [
+          "bash",
+          "-lc",
+          "cp \"$EVAL_SUITE_ROOT/task_assets/hn_settings_deeplink/TASK.md\" ./TASK.md",
+        ]
+      - [
+          "bash",
+          "-lc",
+          "test -f TASK.md || (echo 'Missing TASK.md (harness must provide task description)' && exit 1)",
+        ]
+    graders:
+      - type: "git_diff_forbidden"
+        forbidden_globs:
+          - "HackerNews/Settings/SettingsScreen.swift"
+          - "HackerNews/Feed/FeedState.swift"
+      - type: "screenshot_exists"
+        path: "settings_screenshot.png"
+      - type: "screenshot_compare"
+        path: "settings_screenshot.png"
+        reference_path: "task_assets/hn_settings_deeplink/reference_screenshot.png"
+        threshold: 15
+    reference_patch: "task_assets/hn_settings_deeplink/reference_solution.patch"

@@ -1,0 +1,5 @@
+{"ts": "2026-01-23T17:20:31.599128Z", "cmd": "xcrun", "argv": ["simctl", "list", "devices", "available"], "source": "agent"}
+{"ts": "2026-01-23T17:20:40.700942Z", "cmd": "xcodebuild", "argv": ["-project", "HackerNews.xcodeproj", "-list"], "source": "agent"}
+{"ts": "2026-01-23T17:21:17.210827Z", "cmd": "xcodebuild", "argv": ["-project", "HackerNews.xcodeproj", "-scheme", "HackerNews", "-sdk", "iphonesimulator", "-destination", "id=25C204DD-62B8-4903-9E45-B3425BF6117A", "-configuration", "Debug", "build", "-derivedDataPath", "build"], "source": "agent"}
+{"ts": "2026-01-23T17:22:13.709319Z", "cmd": "xcrun", "argv": ["simctl", "install", "25C204DD-62B8-4903-9E45-B3425BF6117A", "build/Build/Products/Debug-iphonesimulator/HackerNews.app"], "source": "agent"}
+{"ts": "2026-01-23T17:22:18.472040Z", "cmd": "xcrun", "argv": ["simctl", "launch", "25C204DD-62B8-4903-9E45-B3425BF6117A", "com.emergetools.hackernews"], "source": "agent"}

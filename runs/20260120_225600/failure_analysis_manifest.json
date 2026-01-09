@@ -1,0 +1,136 @@
+{
+  "generated_at": "2026-02-01T10:10:14.005759+00:00",
+  "run_dir": "runs/20260120_225600",
+  "total_failures": 4,
+  "runs_jsonl": "runs/20260120_225600/runs.jsonl",
+  "entries": [
+    {
+      "run_id": "claude-shell_primed-hn_offline_api_refactor-trial-1769030412831",
+      "agent_id": "claude-sonnet",
+      "scenario": "shell_primed",
+      "task_id": "hn_offline_api_refactor",
+      "success": false,
+      "failure_reason": "tests_failed",
+      "exit_code": 0,
+      "wall_time_sec": 161.01066279411316,
+      "grader_results": [
+        {
+          "type": "git_diff_forbidden",
+          "ok": true,
+          "reason": null,
+          "duration_sec": 0.057
+        },
+        {
+          "type": "ios_test_pass",
+          "ok": false,
+          "reason": "tests_failed",
+          "duration_sec": 13.541
+        }
+      ],
+      "tool_error_total": 0,
+      "tool_error_mcp": 0,
+      "tool_error_non_mcp": 0,
+      "transcript_path": "/Users/cameroncooke/Developer/mcp_evals/runs/20260120_225600/trials/claude-shell_primed-hn_offline_api_refactor-trial-1769030412831/transcript.txt",
+      "tool_error_log_path": "/Users/cameroncooke/Developer/mcp_evals/runs/20260120_225600/trials/claude-shell_primed-hn_offline_api_refactor-trial-1769030412831/tool_errors.jsonl",
+      "tool_error_context_log_path": "/Users/cameroncooke/Developer/mcp_evals/runs/20260120_225600/trials/claude-shell_primed-hn_offline_api_refactor-trial-1769030412831/tool_error_context.jsonl",
+      "command_log_path": "/Users/cameroncooke/Developer/mcp_evals/runs/20260120_225600/trials/claude-shell_primed-hn_offline_api_refactor-trial-1769030412831/cmd_log.jsonl",
+      "mcp_tool_log_path": null
+    },
+    {
+      "run_id": "claude-mcp_unprimed-hn_settings_deeplink-trial-1769152750961",
+      "agent_id": "claude-sonnet",
+      "scenario": "mcp_unprimed",
+      "task_id": "hn_settings_deeplink",
+      "success": false,
+      "failure_reason": "screenshot_not_found:settings_screenshot.png",
+      "exit_code": 124,
+      "wall_time_sec": 480.01361322402954,
+      "grader_results": [
+        {
+          "type": "git_diff_forbidden",
+          "ok": true,
+          "reason": null,
+          "duration_sec": 0.05
+        },
+        {
+          "type": "screenshot_exists",
+          "ok": false,
+          "reason": "screenshot_not_found:settings_screenshot.png",
+          "duration_sec": 0.0
+        }
+      ],
+      "tool_error_total": 11,
+      "tool_error_mcp": 0,
+      "tool_error_non_mcp": 11,
+      "transcript_path": "/Users/cameroncooke/Developer/mcp_evals/runs/20260120_225600/trials/claude-mcp_unprimed-hn_settings_deeplink-trial-1769152750961/transcript.txt",
+      "tool_error_log_path": "/Users/cameroncooke/Developer/mcp_evals/runs/20260120_225600/trials/claude-mcp_unprimed-hn_settings_deeplink-trial-1769152750961/tool_errors.jsonl",
+      "tool_error_context_log_path": "/Users/cameroncooke/Developer/mcp_evals/runs/20260120_225600/trials/claude-mcp_unprimed-hn_settings_deeplink-trial-1769152750961/tool_error_context.jsonl",
+      "command_log_path": "/Users/cameroncooke/Developer/mcp_evals/runs/20260120_225600/trials/claude-mcp_unprimed-hn_settings_deeplink-trial-1769152750961/cmd_log.jsonl",
+      "mcp_tool_log_path": "/Users/cameroncooke/Developer/mcp_evals/runs/20260120_225600/trials/claude-mcp_unprimed-hn_settings_deeplink-trial-1769152750961/mcp_tool_calls.jsonl"
+    },
+    {
+      "run_id": "claude-opus-shell_primed-hn_offline_api_refactor-trial-1769214595016",
+      "agent_id": "claude-opus",
+      "scenario": "shell_primed",
+      "task_id": "hn_offline_api_refactor",
+      "success": false,
+      "failure_reason": "tests_failed",
+      "exit_code": 0,
+      "wall_time_sec": 125.9976921081543,
+      "grader_results": [
+        {
+          "type": "git_diff_forbidden",
+          "ok": true,
+          "reason": null,
+          "duration_sec": 0.063
+        },
+        {
+          "type": "ios_test_pass",
+          "ok": false,
+          "reason": "tests_failed",
+          "duration_sec": 11.621
+        }
+      ],
+      "tool_error_total": 0,
+      "tool_error_mcp": 0,
+      "tool_error_non_mcp": 0,
+      "transcript_path": "/Users/cameroncooke/Developer/mcp_evals/runs/20260120_225600/trials/claude-opus-shell_primed-hn_offline_api_refactor-trial-1769214595016/transcript.txt",
+      "tool_error_log_path": "/Users/cameroncooke/Developer/mcp_evals/runs/20260120_225600/trials/claude-opus-shell_primed-hn_offline_api_refactor-trial-1769214595016/tool_errors.jsonl",
+      "tool_error_context_log_path": "/Users/cameroncooke/Developer/mcp_evals/runs/20260120_225600/trials/claude-opus-shell_primed-hn_offline_api_refactor-trial-1769214595016/tool_error_context.jsonl",
+      "command_log_path": "/Users/cameroncooke/Developer/mcp_evals/runs/20260120_225600/trials/claude-opus-shell_primed-hn_offline_api_refactor-trial-1769214595016/cmd_log.jsonl",
+      "mcp_tool_log_path": null
+    },
+    {
+      "run_id": "codex-shell_unprimed-hn_settings_deeplink-trial-1769862236489",
+      "agent_id": "codex",
+      "scenario": "shell_unprimed",
+      "task_id": "hn_settings_deeplink",
+      "success": false,
+      "failure_reason": "screenshot_not_found:settings_screenshot.png",
+      "exit_code": 1,
+      "wall_time_sec": 63.01527786254883,
+      "grader_results": [
+        {
+          "type": "git_diff_forbidden",
+          "ok": true,
+          "reason": null,
+          "duration_sec": 0.061
+        },
+        {
+          "type": "screenshot_exists",
+          "ok": false,
+          "reason": "screenshot_not_found:settings_screenshot.png",
+          "duration_sec": 0.0
+        }
+      ],
+      "tool_error_total": 1,
+      "tool_error_mcp": 0,
+      "tool_error_non_mcp": 1,
+      "transcript_path": "/Users/cameroncooke/Developer/mcp_evals/runs/20260120_225600/trials/codex-shell_unprimed-hn_settings_deeplink-trial-1769862236489/transcript.txt",
+      "tool_error_log_path": "/Users/cameroncooke/Developer/mcp_evals/runs/20260120_225600/trials/codex-shell_unprimed-hn_settings_deeplink-trial-1769862236489/tool_errors.jsonl",
+      "tool_error_context_log_path": "/Users/cameroncooke/Developer/mcp_evals/runs/20260120_225600/trials/codex-shell_unprimed-hn_settings_deeplink-trial-1769862236489/tool_error_context.jsonl",
+      "command_log_path": "/Users/cameroncooke/Developer/mcp_evals/runs/20260120_225600/trials/codex-shell_unprimed-hn_settings_deeplink-trial-1769862236489/cmd_log.jsonl",
+      "mcp_tool_log_path": null
+    }
+  ]
+}

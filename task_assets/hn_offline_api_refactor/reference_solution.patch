@@ -1,0 +1,52 @@
+diff --git a/Packages/Common/Sources/Common/Network/HNApi.swift b/Packages/Common/Sources/Common/Network/HNApi.swift
+--- a/Packages/Common/Sources/Common/Network/HNApi.swift
++++ b/Packages/Common/Sources/Common/Network/HNApi.swift
+@@ -10,7 +10,9 @@ public class HNApi {
+   private let baseUrl = "https://hacker-news.firebaseio.com/v0/"
+   private let decoder = JSONDecoder()
+-  private let session = URLSession.shared
++  private let session: URLSession
+ 
+-  public init() {}
++  public init(session: URLSession = .shared) {
++    self.session = session
++  }
+   
+   public func fetchStories(feedType: FeedType) async -> [Int64] {
+@@ -37,7 +39,7 @@ public class HNApi {
+     let url = URL(string: baseUrl + feedUrl)!
+     
+     do {
+-      let (data, response) = try await URLSession.shared.data(from: url)
++      let (data, response) = try await session.data(from: url)
+       if Flags.isEnabled(.networkDebugger) {
+         NetworkDebugger.printStats(for: response)
+       }
+@@ -55,11 +57,12 @@ public class HNApi {
+   
+   public func fetchPage(page: Page) async -> [Story] {
+     do {
++      let session = self.session
+       return try await withThrowingTaskGroup(of: HNItem.self) { taskGroup in
+         for id in page.ids {
+           taskGroup.addTask {
+             let url = URL(string: "https://hacker-news.firebaseio.com/v0/item/\(id).json")!
+-            let (data, response) = try await URLSession.shared.data(from: url)
++            let (data, response) = try await session.data(from: url)
+             if Flags.isEnabled(.networkDebugger) {
+               NetworkDebugger.printStats(for: response)
+             }
+@@ -96,11 +99,12 @@ public class HNApi {
+   
+   public func fetchItems(ids: [Int64]) async -> [HNItem] {
+     do {
++      let session = self.session
+       return try await withThrowingTaskGroup(of: HNItem.self) { taskGroup in
+         for id in ids {
+           taskGroup.addTask {
+             let url = URL(string: "https://hacker-news.firebaseio.com/v0/item/\(id).json")!
+-            let (data, response) = try await URLSession.shared.data(from: url)
++            let (data, response) = try await session.data(from: url)
+             if Flags.isEnabled(.networkDebugger) {
+               NetworkDebugger.printStats(for: response)
+             }

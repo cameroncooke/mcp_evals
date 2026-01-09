@@ -1,0 +1,5 @@
+{"ts": "2026-01-24T17:40:18.826293Z", "tool_name": "Read", "tool_kind": "non_mcp", "source": "claude", "payload": "<tool_use_error>File does not exist.</tool_use_error>"}
+{"ts": "2026-01-24T17:40:18.826668Z", "tool_name": "Read", "tool_kind": "non_mcp", "source": "claude", "payload": "<tool_use_error>File does not exist.</tool_use_error>"}
+{"ts": "2026-01-24T17:40:21.012214Z", "tool_name": "Read", "tool_kind": "non_mcp", "source": "claude", "payload": "<tool_use_error>File does not exist.</tool_use_error>"}
+{"ts": "2026-01-24T17:41:10.307551Z", "tool_name": "mcp__XcodeBuildMCP-Dev__list_schemes", "tool_kind": "mcp", "source": "claude", "payload": "Error: Missing required session defaults\nDetails: Provide a project or workspace\nSet with: session-set-defaults { \"projectPath\": \"...\" } OR session-set-defaults { \"workspacePath\": \"...\" }"}
+{"ts": "2026-01-21T23:03:51.416635Z", "tool_name": "bash", "tool_kind": "non_mcp", "source": "codex", "payload": "{\"exit_code\": 1, \"status\": \"failed\"}"}

@@ -1,0 +1,100 @@
+{
+  "description": "Expected aggregation results for runs_sample.jsonl",
+  "notes": [
+    "baseline_run=true rows are excluded from aggregation",
+    "Groups are keyed by (agent_id, scenario, task_id)",
+    "Each group has 1 run, so stdev/cv are null",
+    "pass@3 = 1 - (1-p)^3, pass^3 = p^3"
+  ],
+  "expected_groups": 5,
+  "groups": [
+    {
+      "agent_id": "codex",
+      "scenario": "mcp_unprimed",
+      "task_id": "hn_api_cache_ttl",
+      "runs": 1,
+      "success_rate": 1.0,
+      "pass_at_1": 1.0,
+      "pass_at_3": 1.0,
+      "pass_pow_3": 1.0,
+      "time_median": 156.87491822242737,
+      "cost_median": 0.28487094999999996,
+      "tool_error_mean": 2.0,
+      "mcp_tool_calls_mean": 6.0
+    },
+    {
+      "agent_id": "codex",
+      "scenario": "mcp_unprimed",
+      "task_id": "smoke_build_install_launch",
+      "runs": 1,
+      "success_rate": 1.0,
+      "pass_at_1": 1.0,
+      "pass_at_3": 1.0,
+      "pass_pow_3": 1.0,
+      "time_median": 75.23548102378845,
+      "cost_median": 0.1063251,
+      "tool_error_mean": 0.0,
+      "mcp_tool_calls_mean": 10.0
+    },
+    {
+      "agent_id": "codex",
+      "scenario": "shell_primed",
+      "task_id": "hn_offline_api_refactor",
+      "runs": 1,
+      "success_rate": 1.0,
+      "pass_at_1": 1.0,
+      "pass_at_3": 1.0,
+      "pass_pow_3": 1.0,
+      "time_median": 114.22072124481201,
+      "cost_median": 0.18222645,
+      "tool_error_mean": 1.0,
+      "mcp_tool_calls_mean": 0.0
+    },
+    {
+      "agent_id": "codex",
+      "scenario": "shell_unprimed",
+      "task_id": "hn_api_cache_ttl",
+      "runs": 1,
+      "success_rate": 0.0,
+      "pass_at_1": 0.0,
+      "pass_at_3": 0.0,
+      "pass_pow_3": 0.0,
+      "time_median": 279.5892322063446,
+      "cost_median": 0.3202794,
+      "tool_error_mean": 5.0,
+      "mcp_tool_calls_mean": 0.0,
+      "cost_per_success_mean": null
+    },
+    {
+      "agent_id": "codex",
+      "scenario": "shell_unprimed",
+      "task_id": "hn_offline_api_refactor",
+      "runs": 1,
+      "success_rate": 1.0,
+      "pass_at_1": 1.0,
+      "pass_at_3": 1.0,
+      "pass_pow_3": 1.0,
+      "time_median": 211.22632813453674,
+      "cost_median": 0.19519745,
+      "tool_error_mean": 2.0,
+      "mcp_tool_calls_mean": 0.0
+    }
+  ],
+  "manifest_tests": {
+    "failure_analysis": {
+      "description": "build_failure_analysis_manifest filters to failed non-baseline runs",
+      "expected_entries": 1,
+      "expected_run_ids": ["codex-shell_unprimed-hn_api_cache_ttl-trial-1768965764931"]
+    },
+    "tool_error_report": {
+      "description": "build_tool_error_report_manifest filters to runs with tool_error_total > 0",
+      "expected_entries": 4,
+      "expected_run_ids": [
+        "codex-shell_unprimed-hn_offline_api_refactor-trial-1768949771381",
+        "codex-shell_primed-hn_offline_api_refactor-trial-1769004757987",
+        "codex-shell_unprimed-hn_api_cache_ttl-trial-1768965764931",
+        "codex-mcp_unprimed-hn_api_cache_ttl-trial-1769036621830"
+      ]
+    }
+  }
+}

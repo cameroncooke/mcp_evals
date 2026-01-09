@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "XcodeBuildMCP-Dev": {
+      "type": "stdio",
+      "command": "/Users/cameroncooke/Developer/mcp_evals/mcp_configs/mcp_env_wrapper.sh",
+      "args": [
+        "node",
+        "--inspect=9999",
+        "--trace-warnings",
+        "/Users/cameroncooke/Developer/XcodeBuildMCP/build/index.js"
+      ],
+      "tool_timeout_sec": 600
+    }
+  }
+}

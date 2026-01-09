@@ -1,0 +1,190 @@
+diff --git a/Packages/Common/Sources/Common/Network/HNApi.swift b/Packages/Common/Sources/Common/Network/HNApi.swift
+index 4a2fcdb..e65cffc 100644
+--- a/Packages/Common/Sources/Common/Network/HNApi.swift
++++ b/Packages/Common/Sources/Common/Network/HNApi.swift
+@@ -11,9 +11,13 @@ import Foundation
+ public class HNApi {
+   private let baseUrl = "https://hacker-news.firebaseio.com/v0/"
+   private let decoder = JSONDecoder()
+-  private let session = URLSession.shared
++  private let session: URLSession
++  private let cache: HNApiCache?
+ 
+-  public init() {}
++  public init(session: URLSession = .shared, cache: HNApiCache? = nil) {
++    self.session = session
++    self.cache = cache
++  }
+   
+   public func fetchStories(feedType: FeedType) async -> [Int64] {
+     NotificationCenter.default.post(name: Notification.Name(rawValue: "EmergeMetricStarted"), object: nil, userInfo: [
+@@ -36,11 +40,18 @@ public class HNApi {
+     let url = URL(string: baseUrl + feedUrl)!
+     
+     do {
+-      let (data, response) = try await URLSession.shared.data(from: url)
++      if let cached = cache?.get(url.absoluteString) {
++        let storyIds = try decoder.decode([Int64].self, from: cached)
++        NotificationCenter.default.post(name: Notification.Name(rawValue: "EmergeMetricEnded"), object: nil, userInfo: [
++          "metric": "FETCH_STORIES"
++        ])
++        return storyIds
++      }
++      let (data, response) = try await session.data(from: url)
+       if Flags.isEnabled(.networkDebugger) {
+         NetworkDebugger.printStats(for: response)
+       }
+-      
++      cache?.set(url.absoluteString, data: data)
+       let storyIds = try decoder.decode([Int64].self, from: data)
+       
+       NotificationCenter.default.post(name: Notification.Name(rawValue: "EmergeMetricEnded"), object: nil, userInfo: [
+@@ -59,24 +70,30 @@ public class HNApi {
+         for id in page.ids {
+           taskGroup.addTask {
+             let url = URL(string: "https://hacker-news.firebaseio.com/v0/item/\(id).json")!
+-            let (data, response) = try await URLSession.shared.data(from: url)
+-            if Flags.isEnabled(.networkDebugger) {
+-              NetworkDebugger.printStats(for: response)
++            let data: Data
++            if let cached = self.cache?.get(url.absoluteString) {
++              data = cached
++            } else {
++              let (fetched, response) = try await self.session.data(from: url)
++              if Flags.isEnabled(.networkDebugger) {
++                NetworkDebugger.printStats(for: response)
++              }
++              self.cache?.set(url.absoluteString, data: fetched)
++              data = fetched
+             }
+-            let decoder = JSONDecoder()
+-            let baseItem = try decoder.decode(BaseItem.self, from: data)
++            let baseItem = try self.decoder.decode(BaseItem.self, from: data)
+             
+             switch baseItem.type {
+             case .story:
+-              return try decoder.decode(Story.self, from: data)
++              return try self.decoder.decode(Story.self, from: data)
+             case .comment:
+-              return try decoder.decode(Comment.self, from: data)
++              return try self.decoder.decode(Comment.self, from: data)
+             case .job:
+-              return try decoder.decode(Job.self, from: data)
++              return try self.decoder.decode(Job.self, from: data)
+             case .poll:
+-              return try decoder.decode(Poll.self, from: data)
++              return try self.decoder.decode(Poll.self, from: data)
+             case .pollopt:
+-              return try decoder.decode(Pollopt.self, from: data)
++              return try self.decoder.decode(Pollopt.self, from: data)
+             }
+           }
+         }
+@@ -99,30 +116,36 @@ public class HNApi {
+         for id in ids {
+           taskGroup.addTask {
+             let url = URL(string: "https://hacker-news.firebaseio.com/v0/item/\(id).json")!
+-            let (data, response) = try await URLSession.shared.data(from: url)
+-            if Flags.isEnabled(.networkDebugger) {
+-              NetworkDebugger.printStats(for: response)
++            let data: Data
++            if let cached = self.cache?.get(url.absoluteString) {
++              data = cached
++            } else {
++              let (fetched, response) = try await self.session.data(from: url)
++              if Flags.isEnabled(.networkDebugger) {
++                NetworkDebugger.printStats(for: response)
++              }
++              self.cache?.set(url.absoluteString, data: fetched)
++              data = fetched
+             }
+-            let decoder = JSONDecoder()
+ //            print("Received response: \(response)")
+ //            if let str = String(data: data, encoding: .utf8) {
+ //              print("Data: \(str)")
+ //            } else {
+ //              print("No readable data received in response")
+ //            }
+-            let baseItem = try decoder.decode(BaseItem.self, from: data)
++            let baseItem = try self.decoder.decode(BaseItem.self, from: data)
+             
+             switch baseItem.type {
+             case .story:
+-              return try decoder.decode(Story.self, from: data)
++              return try self.decoder.decode(Story.self, from: data)
+             case .comment:
+-              return try decoder.decode(Comment.self, from: data)
++              return try self.decoder.decode(Comment.self, from: data)
+             case .job:
+-              return try decoder.decode(Story.self, from: data)
++              return try self.decoder.decode(Story.self, from: data)
+             case .poll:
+-              return try decoder.decode(Poll.self, from: data)
++              return try self.decoder.decode(Poll.self, from: data)
+             case .pollopt:
+-              return try decoder.decode(Pollopt.self, from: data)
++              return try self.decoder.decode(Pollopt.self, from: data)
+             }
+           }
+         }
+diff --git a/Packages/Common/Sources/Common/Network/HNApiCache.swift b/Packages/Common/Sources/Common/Network/HNApiCache.swift
+new file mode 100644
+index 0000000..0127d7e
+--- /dev/null
++++ b/Packages/Common/Sources/Common/Network/HNApiCache.swift
+@@ -0,0 +1,55 @@
++import Foundation
++
++public protocol HNApiCache {
++  func get(_ key: String) -> Data?
++  func set(_ key: String, data: Data)
++}
++
++public protocol HNApiClock {
++  func now() -> Date
++}
++
++public struct SystemClock: HNApiClock {
++  public init() {}
++
++  public func now() -> Date {
++    Date()
++  }
++}
++
++public final class HNApiInMemoryCache: HNApiCache {
++  private struct Entry {
++    let data: Data
++    let expiresAt: Date
++  }
++
++  private let ttl: TimeInterval
++  private let clock: HNApiClock
++  private let lock = NSLock()
++  private var storage: [String: Entry] = [:]
++
++  public init(ttlSeconds: TimeInterval, clock: HNApiClock = SystemClock()) {
++    self.ttl = ttlSeconds
++    self.clock = clock
++  }
++
++  public func get(_ key: String) -> Data? {
++    lock.lock()
++    defer { lock.unlock() }
++    guard let entry = storage[key] else {
++      return nil
++    }
++    if entry.expiresAt <= clock.now() {
++      storage.removeValue(forKey: key)
++      return nil
++    }
++    return entry.data
++  }
++
++  public func set(_ key: String, data: Data) {
++    lock.lock()
++    defer { lock.unlock() }
++    let expiresAt = clock.now().addingTimeInterval(ttl)
++    storage[key] = Entry(data: data, expiresAt: expiresAt)
++  }
++}

@@ -1,0 +1,14 @@
+.DS_Store
+.venv/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+runs/*/report_agent_env
+runs/*/trials
+runs/*/worktrees
+runs/spm_cache
+
+.eval_forbidden_baseline.json
+*.pyc
+/sut/
+/build

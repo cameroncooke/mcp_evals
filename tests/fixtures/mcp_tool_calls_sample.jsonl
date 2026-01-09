@@ -1,0 +1,10 @@
+{"ts": "2026-01-21T23:02:28.691032Z", "server": "XcodeBuildMCP-Dev", "tool": "discover_projs", "arguments": {"workspaceRoot": "/tmp/worktree/ios"}}
+{"ts": "2026-01-21T23:02:33.502965Z", "server": "XcodeBuildMCP-Dev", "tool": "session-set-defaults", "arguments": {"projectPath": "/tmp/worktree/ios/HackerNews.xcodeproj"}}
+{"ts": "2026-01-21T23:03:00.840900Z", "server": "XcodeBuildMCP-Dev", "tool": "list_schemes", "arguments": {}}
+{"ts": "2026-01-21T23:03:05.444737Z", "server": "XcodeBuildMCP-Dev", "tool": "list_sims", "arguments": {}}
+{"ts": "2026-01-21T23:03:09.602748Z", "server": "XcodeBuildMCP-Dev", "tool": "session-set-defaults", "arguments": {"scheme": "HackerNews", "simulatorId": "25C204DD-62B8-4903-9E45-B3425BF6117A", "useLatestOS": true}}
+{"ts": "2026-01-21T23:03:23.357703Z", "server": "XcodeBuildMCP-Dev", "tool": "build_sim", "arguments": {}}
+{"ts": "2026-01-21T23:03:28.541647Z", "server": "XcodeBuildMCP-Dev", "tool": "get_sim_app_path", "arguments": {"platform": "iOS Simulator"}}
+{"ts": "2026-01-21T23:03:31.021394Z", "server": "XcodeBuildMCP-Dev", "tool": "get_app_bundle_id", "arguments": {"appPath": "/tmp/DerivedData/HackerNews.app"}}
+{"ts": "2026-01-21T23:03:34.207534Z", "server": "XcodeBuildMCP-Dev", "tool": "install_app_sim", "arguments": {"appPath": "/tmp/DerivedData/HackerNews.app"}}
+{"ts": "2026-01-21T23:03:36.683431Z", "server": "XcodeBuildMCP-Dev", "tool": "launch_app_sim", "arguments": {"bundleId": "com.emergetools.hackernews"}}

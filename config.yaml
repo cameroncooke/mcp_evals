@@ -1,0 +1,145 @@
+suite:
+  output_root: "./runs"
+  timeout_sec: 1800 # hard timeout per trial
+  scenario_timeouts_sec:
+    shell_unprimed: 480
+    shell_primed: 480
+    mcp_unprimed: 540
+    mcp_unprimed_v2: 540
+  stall_timeout_sec: 300 # no output/tool activity for this long => abort
+  trials_per_cell: 30
+  random_seed: 1337
+  plan_mode: "blocked_by_scenario" # reduce cross-scenario cache leakage
+  shuffle_within_scenario: true
+  baseline_trials_per_scenario: 1
+  summary_cache_strata: true # also emit summary_cold.*
+  run_baselines: true # do-nothing baseline for each {agent, scenario}
+  keep_workdirs: false # set true to debug failures
+  fetch_remote: false # avoid per-trial git fetch for stability
+  validate_tasks: false # run reference solutions before trials
+  clean_agent_env: true # isolate agent config/skills where possible
+  use_ccusage_for_codex: true # prefer ccusage for Codex cost when provider cost is missing
+  prewarm_spm: true
+  spm_cache_dir: "spm_cache"
+  post_run_report: true
+  post_run_report_agent: "claude-opus"
+  post_run_report_path: "tool_error_report.md"
+  env:
+    EMERGE_IS_RUNNING_FOR_SNAPSHOTS: "1"
+
+project:
+  repo_path: "/Users/cameroncooke/Developer/hackernews/ios"
+  base_ref: "HEAD" # commit SHA recommended for stable runs
+  simulator_name: "iPhone 17 Pro"
+  # Build params are used by graders and injected only in shell_primed prompts
+  build_params:
+    workspace: null # or set project:
+    project: "HackerNews.xcodeproj" # e.g., "HackerNews.xcodeproj"
+    scheme: "HackerNews"
+    bundle_id: "com.emergetools.hackernews"
+    configuration: "Debug"
+    simulator_name: "iPhone 17 Pro"
+    # Optional: fixed destination string if you use it in graders
+    destination: "platform=iOS Simulator,name=iPhone 17 Pro"
+
+agents:
+  - id: "codex"
+    kind: "codex_cli"
+    # Command template. Use {PROMPT} and {WORKDIR}. Recommend a non-interactive mode.
+    # You MUST configure this to match how you run Codex CLI on your machine.
+    command:
+      [
+        "codex",
+        "exec",
+        "{EXTRA_ARGS}",
+        "--dangerously-bypass-approvals-and-sandbox",
+        "--json",
+        "--output-last-message",
+        "{OUT_JSON}",
+        "{PROMPT}",
+      ]
+    env:
+      # Example: pass model/version here if your CLI supports it
+      CODEX_MODEL: "gpt-5.2-codex"
+    pricing:
+      # USD per token (not per 1K). Fill with the *actual* rates you want to use.
+      # OpenAI pricing for gpt-5.2-codex:
+      # Input:  $1.75 / 1,000,000 tokens = 0.00000175
+      # Cached input: $0.175 / 1,000,000 tokens = 0.000000175
+      # Output: $14.00 / 1,000,000 tokens = 0.000014
+      input_per_token: 0.00000175
+      output_per_token: 0.000014
+      cache_read_multiplier: 0.1 # cached input billed at 0.1x input
+
+  - id: "claude-sonnet"
+    kind: "claude_code_cli"
+    command:
+      [
+        "claude",
+        "-p",
+        "--output-format",
+        "stream-json",
+        "--include-partial-messages",
+        "--disable-slash-commands",
+        "--setting-sources",
+        "local",
+        "--verbose",
+        "--no-session-persistence",
+        "--permission-mode",
+        "bypassPermissions",
+        "{EXTRA_ARGS}",
+        "--",
+        "{PROMPT}",
+      ]
+    env: {}
+    pricing:
+      # Claude Sonnet 4.5 pricing (USD per 1M tokens):
+      # Input $3 | Cache write 5m $3.75 | Cache write 1h $6 | Cache read $0.30 | Output $15
+      input_per_token: 0.000003
+      output_per_token: 0.000015
+      cache_read_multiplier: 0.1 # $0.30 / $3.00
+      cache_write_multiplier_5m: 1.25
+      cache_write_multiplier_1h: 2.0
+
+  - id: "claude-opus"
+    kind: "claude_code_cli"
+    command:
+      [
+        "claude",
+        "--model", "claude-opus-4-5-20251101",
+        "-p",
+        "--output-format",
+        "stream-json",
+        "--include-partial-messages",
+        "--disable-slash-commands",
+        "--setting-sources",
+        "local",
+        "--verbose",
+        "--no-session-persistence",
+        "--permission-mode",
+        "bypassPermissions",
+        "{EXTRA_ARGS}",
+        "--",
+        "{PROMPT}",
+      ]
+    env: {}
+    pricing:
+      # Claude Opus 4.5 pricing (USD per 1M tokens):
+      # Input $5 | Cache write 5m $6.25 | Cache write 1h $10 | Cache read $0.50 | Output $25
+      input_per_token: 0.000005
+      output_per_token: 0.000025
+      cache_read_multiplier: 0.1 # $0.50 / $5.00
+      cache_write_multiplier_5m: 1.25
+      cache_write_multiplier_1h: 2.0
+
+mcp:
+  enabled: true
+  # For mcp_unprimed trials, the harness will set EVAL_MCP_ENABLED=1 and optionally start MCP.
+  # If you already run MCP externally, you can leave start/stop empty and just set env below.
+  start_command: [] # optional
+  stop_command: [] # optional
+  # Provide anything your MCP server/client needs, e.g. MCP endpoint or socket path.
+  # MCP_ENDPOINT: "http://127.0.0.1:xxxx"
+  # Optional: if your MCP server can log tool calls, write JSONL here and the harness will ingest it.
+  # EVAL_MCP_TOOL_LOG: "/tmp/mcp_tool_calls.jsonl"
+  env: {}

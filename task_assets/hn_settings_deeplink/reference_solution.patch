@@ -1,0 +1,66 @@
+diff --git a/HackerNews/AppViewModel.swift b/HackerNews/AppViewModel.swift
+index 1234567..abcdefg 100644
+--- a/HackerNews/AppViewModel.swift
++++ b/HackerNews/AppViewModel.swift
+@@ -109,6 +109,13 @@ enum AuthState {
+ @Observable @MainActor
+ final class AppViewModel {
+
++  enum Tab: Int {
++    case feed = 0
++    case bookmarks = 1
++    case settings = 2
++  }
++
++  var selectedTab: Tab = .feed
+   enum AppNavigation: Codable, Hashable {
+     case webLink(url: URL, title: String)
+     case storyComments(story: Story)
+diff --git a/HackerNews/ContentView.swift b/HackerNews/ContentView.swift
+index 1234567..abcdefg 100644
+--- a/HackerNews/ContentView.swift
++++ b/HackerNews/ContentView.swift
+@@ -13,19 +13,22 @@ struct ContentView: View {
+
+   var body: some View {
+-    TabView {
++    TabView(selection: $model.selectedTab) {
+       FeedScreen(model: $model)
+         .tabItem {
+           Image(systemName: "newspaper.fill")
+         }
++        .tag(AppViewModel.Tab.feed)
+       BookmarksScreen(model: $model)
+         .onAppear {
+           model.fetchBookmarks()
+         }
+         .tabItem {
+           Image(systemName: "book")
+         }
++        .tag(AppViewModel.Tab.bookmarks)
+       SettingsScreen(model: $model)
+         .tabItem {
+           Image(systemName: "gear")
+         }
++        .tag(AppViewModel.Tab.settings)
+     }
+     .accentColor(.hnOrange)
+   }
+diff --git a/HackerNews/HNApp.swift b/HackerNews/HNApp.swift
+index 1234567..abcdefg 100644
+--- a/HackerNews/HNApp.swift
++++ b/HackerNews/HNApp.swift
+@@ -124,6 +124,12 @@ struct HackerNewsApp: App {
+   }
+
+   private func handleDeepLink(_ url: URL) {
++    guard url.scheme == "hackernews" else { return }
++
++    if url.host == "settings" {
++      appModel.selectedTab = .settings
++      return
++    }
++
+     guard url.scheme == "hackernews",
+       url.host == "story",
+       let storyId = Int64(url.lastPathComponent)

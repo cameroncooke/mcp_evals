@@ -1,0 +1,197 @@
+diff --git a/HackerNewsTests/Fixtures/item_1001.json b/HackerNewsTests/Fixtures/item_1001.json
+new file mode 100644
+--- /dev/null
++++ b/HackerNewsTests/Fixtures/item_1001.json
+@@ -0,0 +1,12 @@
++{
++  "id": 1001,
++  "by": "alice",
++  "time": 1720000000,
++  "type": "story",
++  "title": "First story",
++  "text": "First story body",
++  "url": "https://example.com/first",
++  "score": 42,
++  "descendants": 5,
++  "kids": [2001, 2002]
++}
+diff --git a/HackerNewsTests/Fixtures/item_1002.json b/HackerNewsTests/Fixtures/item_1002.json
+new file mode 100644
+--- /dev/null
++++ b/HackerNewsTests/Fixtures/item_1002.json
+@@ -0,0 +1,11 @@
++{
++  "id": 1002,
++  "by": "bob",
++  "time": 1720003600,
++  "type": "story",
++  "title": "Second story",
++  "url": "https://example.com/second",
++  "score": 7,
++  "descendants": 0,
++  "kids": []
++}
+diff --git a/HackerNewsTests/Fixtures/item_1003.json b/HackerNewsTests/Fixtures/item_1003.json
+new file mode 100644
+--- /dev/null
++++ b/HackerNewsTests/Fixtures/item_1003.json
+@@ -0,0 +1,11 @@
++{
++  "id": 1003,
++  "by": "carol",
++  "time": 1720007200,
++  "type": "story",
++  "title": "Third story",
++  "url": "https://example.com/third",
++  "score": 99,
++  "descendants": 12,
++  "kids": [3001]
++}
+diff --git a/HackerNewsTests/Fixtures/topstories.json b/HackerNewsTests/Fixtures/topstories.json
+new file mode 100644
+--- /dev/null
++++ b/HackerNewsTests/Fixtures/topstories.json
+@@ -0,0 +1 @@
++[1001, 1002, 1003]
+diff --git a/HackerNewsTests/Hacker_NewsTests.swift b/HackerNewsTests/Hacker_NewsTests.swift
+--- a/HackerNewsTests/Hacker_NewsTests.swift
++++ b/HackerNewsTests/Hacker_NewsTests.swift
+@@ -6,5 +6,7 @@
+ //
+ 
++import Common
++import Foundation
+ import XCTest
+ 
+ final class Hacker_NewsTests: XCTestCase {
+@@ -33,3 +35,130 @@ final class Hacker_NewsTests: XCTestCase {
+     }
+ 
+ }
++
++final class HNApiOfflineTests: XCTestCase {
++
++  override func setUpWithError() throws {
++    StubURLProtocol.responses = try FixtureLoader.responses()
++    StubURLProtocol.requestedURLs = []
++  }
++
++  override func tearDownWithError() throws {
++    StubURLProtocol.responses = [:]
++    StubURLProtocol.requestedURLs = []
++  }
++
++  func testFetchStoriesUsesFixtureIds() async throws {
++    let api = HNApi(session: try makeSession())
++
++    let ids = await api.fetchStories(feedType: .top)
++
++    XCTAssertEqual(ids, [Int64(1001), 1002, 1003])
++  }
++
++  func testFetchPageReturnsStoriesInOrder() async throws {
++    let api = HNApi(session: try makeSession())
++    let page = Page(ids: [Int64(1002), 1001, 1003][...])
++
++    let stories = await api.fetchPage(page: page)
++
++    XCTAssertEqual(stories.map(\.id), [Int64(1002), 1001, 1003])
++  }
++
++  func testFetchPageDecodesStoryFields() async throws {
++    let api = HNApi(session: try makeSession())
++    let page = Page(ids: [Int64(1001)][...])
++
++    let stories = await api.fetchPage(page: page)
++    let story = try XCTUnwrap(stories.first)
++
++    XCTAssertEqual(story.title, "First story")
++    XCTAssertEqual(story.score, 42)
++    XCTAssertEqual(story.descendants, 5)
++    XCTAssertEqual(story.by, "alice")
++  }
++
++  private func makeSession() throws -> URLSession {
++    let config = URLSessionConfiguration.ephemeral
++    config.protocolClasses = [StubURLProtocol.self]
++    return URLSession(configuration: config)
++  }
++}
++
++private enum FixtureLoader {
++  static func responses() throws -> [String: Data] {
++    return [
++      "https://hacker-news.firebaseio.com/v0/topstories.json": try data(
++        named: "topstories.json"),
++      "https://hacker-news.firebaseio.com/v0/item/1001.json": try data(
++        named: "item_1001.json"),
++      "https://hacker-news.firebaseio.com/v0/item/1002.json": try data(
++        named: "item_1002.json"),
++      "https://hacker-news.firebaseio.com/v0/item/1003.json": try data(
++        named: "item_1003.json"),
++    ]
++  }
++
++  static func data(named name: String) throws -> Data {
++    let testsDir = URL(fileURLWithPath: #filePath)
++      .deletingLastPathComponent()
++    let fixturesDir = testsDir.appendingPathComponent("Fixtures")
++    let url = fixturesDir.appendingPathComponent(name)
++    if !FileManager.default.fileExists(atPath: url.path) {
++      throw FixtureError.missingFixture(url.lastPathComponent)
++    }
++    return try Data(contentsOf: url)
++  }
++}
++
++private enum FixtureError: Error, CustomStringConvertible {
++  case missingFixture(String)
++
++  var description: String {
++    switch self {
++    case .missingFixture(let name):
++      return "Missing fixture: \(name)"
++    }
++  }
++}
++
++final class StubURLProtocol: URLProtocol {
++  static var responses: [String: Data] = [:]
++  static var requestedURLs: [String] = []
++
++  override class func canInit(with request: URLRequest) -> Bool {
++    true
++  }
++
++  override class func canonicalRequest(for request: URLRequest) -> URLRequest {
++    request
++  }
++
++  override func startLoading() {
++    guard let url = request.url else {
++      client?.urlProtocol(self, didFailWithError: FixtureError.missingFixture("URL"))
++      return
++    }
++
++    let key = url.absoluteString
++    StubURLProtocol.requestedURLs.append(key)
++
++    guard let data = StubURLProtocol.responses[key] else {
++      client?.urlProtocol(self, didFailWithError: FixtureError.missingFixture(key))
++      return
++    }
++
++    let response = HTTPURLResponse(
++      url: url,
++      statusCode: 200,
++      httpVersion: nil,
++      headerFields: nil
++    )!
++    client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
++    client?.urlProtocol(self, didLoad: data)
++    client?.urlProtocolDidFinishLoading(self)
++  }
++
++  override func stopLoading() {
++  }
++}

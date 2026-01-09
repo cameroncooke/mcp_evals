@@ -1,0 +1,17 @@
+{
+  "include": [
+    "evals",
+    "tests",
+    "*.py"
+  ],
+  "exclude": [
+    ".venv",
+    "runs",
+    "sut"
+  ],
+  "typeCheckingMode": "basic",
+  "reportMissingTypeStubs": false,
+  "reportMissingImports": false,
+  "venvPath": ".",
+  "venv": ".venv"
+}
